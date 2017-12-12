@@ -40,14 +40,22 @@ public class RNPushNotificationHelper {
     private Context context;
     private RNPushNotificationConfig config;
     private final SharedPreferences scheduledNotificationsPersistence;
+    private final Class mIntentClass;
+    private int mSmallIconResId = -1;
     private static final int ONE_MINUTE = 60 * 1000;
     private static final long ONE_HOUR = 60 * ONE_MINUTE;
     private static final long ONE_DAY = 24 * ONE_HOUR;
 
     public RNPushNotificationHelper(Application context) {
+        this(context, null, -1);
+    }
+
+    public RNPushNotificationHelper(Application context, final Class intentClass,int smallIconResId) {
         this.context = context;
         this.config = new RNPushNotificationConfig(context);
         this.scheduledNotificationsPersistence = context.getSharedPreferences(RNPushNotificationHelper.PREFERENCES_KEY, Context.MODE_PRIVATE);
+        mIntentClass = intentClass;
+        mSmallIconResId = smallIconResId;
     }
 
     public Class getMainActivityClass() {
@@ -77,7 +85,12 @@ public class RNPushNotificationHelper {
     }
 
     public void sendNotificationScheduled(Bundle bundle) {
-        Class intentClass = getMainActivityClass();
+        Class intentClass;
+        if (mIntentClass != null) {
+            intentClass = mIntentClass;
+        } else {
+            intentClass = getMainActivityClass();
+        }
         if (intentClass == null) {
             Log.e(LOG_TAG, "No activity class found for the scheduled notification");
             return;
@@ -134,7 +147,12 @@ public class RNPushNotificationHelper {
 
     public void sendToNotificationCentre(Bundle bundle) {
         try {
-            Class intentClass = getMainActivityClass();
+            Class intentClass;
+            if (mIntentClass != null) {
+                intentClass = mIntentClass;
+            } else {
+                intentClass = getMainActivityClass();
+            }
             if (intentClass == null) {
                 Log.e(LOG_TAG, "No activity class found for the notification");
                 return;
@@ -235,20 +253,24 @@ public class RNPushNotificationHelper {
             int smallIconResId;
             int largeIconResId;
 
-            String smallIcon = bundle.getString("smallIcon");
+            if (mSmallIconResId <= 0) {
+                String smallIcon = bundle.getString("smallIcon");
 
-            if (smallIcon != null) {
-                smallIconResId = res.getIdentifier(smallIcon, "mipmap", packageName);
-            } else {
-                smallIconResId = res.getIdentifier("ic_notification", "mipmap", packageName);
-            }
-
-            if (smallIconResId == 0) {
-                smallIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
+                if (smallIcon != null) {
+                    smallIconResId = res.getIdentifier(smallIcon, "mipmap", packageName);
+                } else {
+                    smallIconResId = res.getIdentifier("ic_notification", "mipmap", packageName);
+                }
 
                 if (smallIconResId == 0) {
-                    smallIconResId = android.R.drawable.ic_dialog_info;
+                    smallIconResId = res.getIdentifier("ic_launcher", "mipmap", packageName);
+
+                    if (smallIconResId == 0) {
+                        smallIconResId = android.R.drawable.ic_dialog_info;
+                    }
                 }
+            }else{
+                smallIconResId = mSmallIconResId;
             }
 
             if (largeIcon != null) {

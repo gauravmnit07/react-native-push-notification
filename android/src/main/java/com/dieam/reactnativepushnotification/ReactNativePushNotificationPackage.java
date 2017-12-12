@@ -11,10 +11,19 @@ import java.util.Collections;
 import java.util.List;
 
 public class ReactNativePushNotificationPackage implements ReactPackage {
+
+    private final Class mIntentClass;
+    private final int mSmallIconResId;
+
+    public ReactNativePushNotificationPackage(final Class mIntentClass, int smallIconResId) {
+        this.mIntentClass = mIntentClass;
+        this.mSmallIconResId = smallIconResId;
+    }
+
     @Override
     public List<NativeModule> createNativeModules(
             ReactApplicationContext reactContext) {
-        return Collections.<NativeModule>singletonList(new RNPushNotification(reactContext));
+        return Collections.<NativeModule>singletonList(new RNPushNotification(reactContext, mIntentClass, mSmallIconResId));
     }
 
     public List<Class<? extends JavaScriptModule>> createJSModules() {

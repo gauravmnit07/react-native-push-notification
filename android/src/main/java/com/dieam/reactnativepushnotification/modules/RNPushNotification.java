@@ -37,7 +37,7 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
     private final Random mRandomNumberGenerator = new Random(System.currentTimeMillis());
     private RNPushNotificationJsDelivery mJsDelivery;
 
-    public RNPushNotification(ReactApplicationContext reactContext) {
+    public RNPushNotification(ReactApplicationContext reactContext, Class intentClass,int smallIconResId) {
         super(reactContext);
 
         reactContext.addActivityEventListener(this);
@@ -45,7 +45,7 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
         Application applicationContext = (Application) reactContext.getApplicationContext();
 
         // The @ReactNative methods use this
-        mRNPushNotificationHelper = new RNPushNotificationHelper(applicationContext);
+        mRNPushNotificationHelper = new RNPushNotificationHelper(applicationContext, intentClass,smallIconResId);
         // This is used to delivery callbacks to JS
         mJsDelivery = new RNPushNotificationJsDelivery(reactContext);
 
